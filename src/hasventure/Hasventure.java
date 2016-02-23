@@ -7,6 +7,9 @@ package hasventure;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 /**
@@ -24,7 +27,13 @@ public class Hasventure extends JFrame implements ActionListener {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        Hasventure frame = new Hasventure("Menu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400,400);
+
+
+        frame.setLayout(null);
+        frame.setVisible(true);
     }
     
     public Hasventure(String title){
@@ -50,11 +59,11 @@ public class Hasventure extends JFrame implements ActionListener {
         add(ende);
     }
     
-    public static void fenster(){
+    public static void fenster() throws IOException{
 	
         JFrame fenster = new JFrame("Game");
         fenster.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        fenster.setSize(650,350);
+        fenster.setSize(1300,1030);
         fenster.setVisible(true);
         fenster.add(new gui());	
     }
@@ -62,7 +71,11 @@ public class Hasventure extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()== schliessen ){
-            fenster();	
+            try {	
+                fenster();
+            } catch (IOException ex) {
+                Logger.getLogger(Hasventure.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         if (e.getSource() == info ){
