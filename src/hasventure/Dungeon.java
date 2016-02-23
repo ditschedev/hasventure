@@ -46,7 +46,9 @@ public class Dungeon {
                         sy = i;
                     } else if(tiles[i].equals("C")){
                         feld[row][i] = "C";
-                    }
+                    } else if(tiles[i].equals("L")){
+                        feld[row][i] = "L";
+                    } 
                 }
             }
             row++;

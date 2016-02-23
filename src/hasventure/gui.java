@@ -27,8 +27,8 @@ public class gui extends JPanel implements ActionListener {
     int x;
     int y;
     
-    int sX;
-    int sY;
+    int sX,sY;
+    int cX,cY;
 
     public gui() throws IOException{
 
@@ -82,12 +82,14 @@ public class gui extends JPanel implements ActionListener {
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
                     bonus = new ImageIcon((getClass().getResource("images/avatar.png")));
                 } else if(f[x][y] == "C"){
+                    cX = x;
+                    cY = y;
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
                     bonus = new ImageIcon((getClass().getResource("images/chest.png")));
-                } else if(f[x][y] == "N"){
+                } else if(f[x][y] == "L"){
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
                     bonus = new ImageIcon((getClass().getResource("images/ladder.png")));
-                } else if(f[x][y] == "NS"){
+                } else if(f[x][y] == "LS"){
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
                     bonus = new ImageIcon((getClass().getResource("images/ladder.png")));
                     bonus2 = new ImageIcon((getClass().getResource("images/avatar.png")));
@@ -119,10 +121,12 @@ public class gui extends JPanel implements ActionListener {
 
 
     public void bewegen(){
-        if(!f[sX][sY].equals("C") || !f[sX][sY].equals("CS")){
-            f[sX][sY] = "G";
-        } else {
+        boolean special = false;
+        if(sX == cX && sY == cY ){
             f[sX][sY] = "C";
+            special = true;
+        } else {
+            f[sX][sY] = "G";
         }
         int oldX = sX;
         int oldY = sY;
@@ -144,6 +148,9 @@ public class gui extends JPanel implements ActionListener {
             onChest = true;
             Object[] options = { "OK"};
             JOptionPane.showOptionDialog(null,"Du stehst gerade auf einer Kiste, öffne sie mit 'o'!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);	
+            if(special){
+                f[oldX][oldY] = "C";
+            }
             repaint();
         } else if(f[sX][sY].equals("L")){
             f[sX][sY] = "LS";
@@ -153,8 +160,15 @@ public class gui extends JPanel implements ActionListener {
             repaint();
         } else if(!f[sX][sY].equals("B")) {
             f[sX][sY] = "S";
+            if(special){
+                f[oldX][oldY] = "C";
+            }
         } else {
-            f[oldX][oldY] = "S";
+            if(special){
+                f[oldX][oldY] = "CS";
+            } else {
+                f[oldX][oldY] = "S";
+            }
         }
 
     }
