@@ -125,6 +125,7 @@ public class gui extends JPanel implements ActionListener {
 
             }
 
+            @Override
             public void keyPressed(KeyEvent e){
 
 
@@ -143,7 +144,7 @@ public class gui extends JPanel implements ActionListener {
                 }
                 
                 if(key == KeyEvent.VK_UP){
-                        laufy = 2;
+                        laufy = -2;
                 }
 
                 if(key == KeyEvent.VK_ESCAPE){
@@ -154,12 +155,17 @@ public class gui extends JPanel implements ActionListener {
             }
 
 
+            @Override
             public void keyReleased(KeyEvent e){
 
                 key = e.getKeyCode();
 
                 if(key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT){
-                        lauf = 0;
+                    lauf = 0;
+                }
+                
+                if(key == KeyEvent.VK_DOWN || key == KeyEvent.VK_UP){
+                    laufy = 0;
                 }
 
             }
