@@ -19,11 +19,16 @@ public class Dungeon {
     private int sx,sy;
     private String[][] feld = new String[35][35];
     
-    public Dungeon(int level) throws IOException{
+    public Dungeon(int terrain, int level) throws IOException{
         String lvl = String.valueOf(level);
+        String ter = String.valueOf(terrain);
         String path = System.getProperty("java.class.path");
         FileReader fr;
-        fr = new FileReader(path+"/hasventure/"+lvl+".csv");
+        if(level == 1 && level != 0){
+           fr = new FileReader(path+"/hasventure/configs/"+ter+".csv");
+        } else {
+            fr = new FileReader(path+"/hasventure/configs/"+ter+"."+lvl+".csv");
+        }
         BufferedReader br = new BufferedReader(fr);
 
         String zeile = "";
@@ -31,7 +36,7 @@ public class Dungeon {
         int row = 0;
         while( (zeile = br.readLine()) != null ) {
             tiles = zeile.split(",");
-            if(tiles[0].equals("1")){
+            if(tiles[0].equals(ter)){
                 title = tiles[1];
                 System.out.println(title);
             } else {

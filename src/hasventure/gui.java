@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
 /**
@@ -21,30 +23,42 @@ public class gui extends JPanel implements ActionListener {
     Image img;
     int key;
     String[][] f;
+    String[][] inv;
+    Inventory inventory;
     public static String title;
     private boolean onChest = false;
     private boolean onLadder = false;
+    private Chest c;
+    private boolean chestopened = false;
     int x;
     int y;
-    
+    int level;
     int sX,sY;
     int cX,cY;
+    Dungeon dungeon;
+    Graphics2D f2;
 
-    public gui() throws IOException{
-
-        key = 0;
+    public gui(boolean tutorial) throws IOException{
         
+        if(tutorial){
+            level = 1;
+        } else {
+            level = 2;
+        }
+        
+        key = 0;
         x = 0;
         y = 0;
 
         setFocusable(true);
         
-        Dungeon d = new Dungeon(1);
-        
-        f = d.getDungeonTiles();
-        title = d.getTitle();
-        sX = d.spawnX();
-        sY = d.spawnY();
+        dungeon = new Dungeon(1,level);
+        inventory = new Inventory();
+        inv = inventory.getInv();
+        f = dungeon.getDungeonTiles();
+        title = dungeon.getTitle();
+        sX = dungeon.spawnX();
+        sY = dungeon.spawnY();
         addKeyListener(new AL());
 
     }
@@ -61,9 +75,46 @@ public class gui extends JPanel implements ActionListener {
     public void paint(Graphics g){
         super.removeAll();
         super.paint(g);
-        Graphics2D f2 =(Graphics2D)g;
+        f2 = (Graphics2D)g;
         
-        f2.drawString("Level Name: " + title, 32, 32);
+        f2.drawString("Level Name: " + title + " // Level: " + level, 32, 32);
+        initTiles();
+        initInv();
+    }
+    
+    private void initInv(){
+        int xwert = 878;
+        int ywert = 780;
+        f2.drawString("Inventory", 878, 740);
+        for(int x=0;x<inv.length;x++){
+            for(int y=0;y<inv.length;y++){
+                ImageIcon icon = null;
+                ImageIcon bonus = null;
+                if(inv[x][y] == "."){
+                    icon = new ImageIcon((getClass().getResource("images/inv_empty.png")));
+                } else if(inv[x][y] == "I2"){
+                    icon = new ImageIcon((getClass().getResource("images/inv_empty.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/ladders.png")));
+                } else if(inv[x][y] == "I3"){
+                    icon = new ImageIcon((getClass().getResource("images/inv_empty.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/chest.png")));
+                }
+                if(icon != null){
+                    Image icoimg = icon.getImage();
+                    f2.drawImage(icoimg, xwert, ywert, 32, 32, this);
+                }
+                if(bonus != null){
+                    Image bonimg = bonus.getImage();
+                    f2.drawImage(bonimg, xwert, ywert, 32, 32, this);
+                }
+                xwert=xwert+34;
+            }
+            ywert=ywert+34;
+            xwert=878;
+        }
+    }
+    
+    private void initTiles(){
         int xwert = 32;
         int ywert = 32;
         
@@ -84,18 +135,19 @@ public class gui extends JPanel implements ActionListener {
                 } else if(f[x][y] == "C"){
                     cX = x;
                     cY = y;
+                    c = new Chest(cX,cY,level);
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
-                    bonus = new ImageIcon((getClass().getResource("images/chest.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/chest.gif")));
                 } else if(f[x][y] == "L"){
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
-                    bonus = new ImageIcon((getClass().getResource("images/ladder.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/ladders.png")));
                 } else if(f[x][y] == "LS"){
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
-                    bonus = new ImageIcon((getClass().getResource("images/ladder.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/ladders.png")));
                     bonus2 = new ImageIcon((getClass().getResource("images/avatar.png")));
                 } else if(f[x][y] == "CS"){
                     icon = new ImageIcon((getClass().getResource("images/ground.png")));
-                    bonus = new ImageIcon((getClass().getResource("images/chest.png")));
+                    bonus = new ImageIcon((getClass().getResource("images/chest.gif")));
                     bonus2 = new ImageIcon((getClass().getResource("images/avatar.png")));
                 }
                 if(icon != null){
@@ -115,10 +167,7 @@ public class gui extends JPanel implements ActionListener {
             ywert=ywert+32;
             xwert=32;
         }
-
     }
-
-
 
     public void bewegen(){
         boolean special = false;
@@ -147,7 +196,9 @@ public class gui extends JPanel implements ActionListener {
             f[sX][sY] = "CS";
             onChest = true;
             Object[] options = { "OK"};
-            JOptionPane.showOptionDialog(null,"Du stehst gerade auf einer Kiste, öffne sie mit 'o'!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);	
+            if(level == 1 && title.equals("Tutorial")){
+                JOptionPane.showOptionDialog(null,"Du stehst gerade auf einer Kiste, öffne sie mit 'o'!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+            }	
             if(special){
                 f[oldX][oldY] = "C";
             }
@@ -156,7 +207,10 @@ public class gui extends JPanel implements ActionListener {
             f[sX][sY] = "LS";
             onLadder = true;
             Object[] options = { "OK"};
-            JOptionPane.showOptionDialog(null,"Du stehst gerade auf einer Leiter, kletter nach oben mit 'k'!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);	
+            if(level == 1 && title.equals("Tutorial")){
+                JOptionPane.showOptionDialog(null,"Du stehst gerade auf einer Leiter, kletter nach oben mit 'k'!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);	
+
+            }
             repaint();
         } else if(!f[sX][sY].equals("B")) {
             f[sX][sY] = "S";
@@ -207,10 +261,34 @@ public class gui extends JPanel implements ActionListener {
             }
             if(key == KeyEvent.VK_O){
                 if(onChest){
-                    Object[] options = { "OK"};
-                    JOptionPane.showOptionDialog(null,"Kiste erfolgreich geöffnet!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);	
+                    if(chestopened == false){
+                        c.setOpen();
+                        chestopened = c.isOpened();
+                        System.out.println(c.isOpened());
+                        inventory.add(c.getContents());
+                        c.removeChest();
+                        Object[] options = { "OK"};
+                        JOptionPane.showOptionDialog(null,"Kiste erfolgreich geöffnet!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+                    } else {
+                        Object[] options = { "OK"};
+                        JOptionPane.showOptionDialog(null,"Kiste wurde bereits geöffnet!","Hinweis",JOptionPane.DEFAULT_OPTION,JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
+                    }
                     
                     f[sX][sY] = "S";
+                }
+            }
+            if(key == KeyEvent.VK_K){
+                if(onLadder){
+                    level++;
+                    try {
+                        dungeon = new Dungeon(1,level);
+                    } catch (IOException ex) {
+                        Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    f = dungeon.getDungeonTiles();
+                    title = dungeon.getTitle();
+                    sX = dungeon.spawnX();
+                    sY = dungeon.spawnY();
                 }
             }
             
